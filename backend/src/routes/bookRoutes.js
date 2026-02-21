@@ -1,6 +1,7 @@
 import express from "express";
 import cloudinary from "cloudinary";
 import Book from "../models/Book.js";
+import protectRoute from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -66,6 +67,17 @@ router.get("/", protectRoute, async (req, res) => {
   }
 });
 
+// get recommended books by the logged in user
+router.get("/user", protectRoute, async (req, res) => {
+  try {
+    const books = await Book.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.json(books);
+  } catch (error) {
+    console.log("Error in getting user books:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.delete("/:id", protectRoute, async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -81,7 +93,7 @@ router.delete("/:id", protectRoute, async (req, res) => {
         // Example image URL: https://res.cloudinary.com/demo/image/upload/v1234567890/qyup61vejflxxi0.png
         const publicId = book.image.split("/").pop().split(".")[0]; // extract public ID from URL
         await cloudinary.uploader.destroy(publicId);
-        
+
       } catch (deleteError) {
         console.log("Error deleting image from Cloudinary:", deleteError);
       }
