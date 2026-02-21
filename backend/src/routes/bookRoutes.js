@@ -66,4 +66,34 @@ router.get("/", protectRoute, async (req, res) => {
   }
 });
 
+router.delete("/:id", protectRoute, async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ message: "Book not found" });
+
+    // check if the user is the owner of the book
+    if(book.user.toString() !== req.user._id.toString())
+      return res.status(403).json({ message: "You are not authorized to delete this book" });
+
+    // delete the image from cloudinary
+    if(book.image && book.image.includes("clodinary")) {
+      try {
+        // Example image URL: https://res.cloudinary.com/demo/image/upload/v1234567890/qyup61vejflxxi0.png
+        const publicId = book.image.split("/").pop().split(".")[0]; // extract public ID from URL
+        await cloudinary.uploader.destroy(publicId);
+        
+      } catch (deleteError) {
+        console.log("Error deleting image from Cloudinary:", deleteError);
+      }
+    }
+
+    await book.deleteOne();
+    res.json({ message: "Book deleted successfully" });
+    
+  } catch (error) {
+    console.log("Error in deleting book:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
