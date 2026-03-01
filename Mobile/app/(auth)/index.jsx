@@ -14,7 +14,6 @@ import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { Link } from "expo-router";
 
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +31,7 @@ export default function Login() {
       {/* ILLUSTRATION */}
       <View style={styles.topIllustration}>
         <Image
-          source={require("../../assets/images/i.png")}
+          source={require("../../assets/images/img1.png")}
           style={styles.illustrationImage}
           resizeMode="contain"
         />
