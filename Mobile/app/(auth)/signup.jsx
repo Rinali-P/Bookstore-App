@@ -5,13 +5,15 @@ import {
   TouchableOpacity, 
   ActivityIndicator, 
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert
 } from "react-native";
 import styles from "../../assets/styles/signup.styles";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "../../store/authStore";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -19,17 +21,15 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  const {user, isLoading, register, token} = useAuthStore();
   
   const router = useRouter();
 
-  const handleSignup = () => {
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+  const handleSignup = async () => {
+    const result =await register(username, email, password);
 
-    // continue with signup API call here
+    if(!result.success) Alert.alert("Error", result.error);
   };
 
   return (
